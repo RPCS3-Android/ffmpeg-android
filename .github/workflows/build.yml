@@ -64,12 +64,16 @@ jobs:
     - name: Build arm64-v8a
       run: |
         $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-arm64-v8a --target ffmpeg-build-all
-        tar -cf ffmpeg-arm64-v8a-Android.tar.gz build-arm64-v8a/ffmpeg/*
+        cd build-arm64-v8a/ffmpeg
+        tar -cf ../../ffmpeg-arm64-v8a-Android.tar.gz */*.a */**/*.h
+        cd -
 
     - name: Build x86-64
       run: |
         $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-x86-64 --target ffmpeg-build-all
-        tar -cf ffmpeg-x86-64-Android.tar.gz build-x86-64/ffmpeg/*
+        cd build-x86-64/ffmpeg
+        tar -cf ../../ffmpeg-x86-64-v8a-Android.tar.gz */*.a */**/*.h
+        cd -
 
     - name: Create release
       uses: softprops/action-gh-release@v2
