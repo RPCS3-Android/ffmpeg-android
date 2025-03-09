@@ -1,0 +1,84 @@
+name: Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      shouldrelease:
+        description: Create release
+        type: boolean
+      releasetag:
+        description: Enter the tag name
+        type: string
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+        lfs: true
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: 17
+
+    - name: Install Ninja
+      run: |
+        sudo apt update
+        sudo apt install ninja-build
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Install packages
+      run: yes | sdkmanager "cmake;3.31.5" "ndk;27.0.12077973"
+
+    - name: Configure arm64-v8a
+      run: |
+        $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake \
+        -Bbuild-arm64-v8a -DANDROID_ABI=arm64-v8a \
+        -DANDROID_PLATFORM=android-31 \
+        -DANDROID_NDK=$ANDROID_SDK_ROOT/ndk/27.0.12077973 \
+        -DCMAKE_TOOLCHAIN_FILE=$ANDROID_SDK_ROOT/ndk/27.0.12077973/build/cmake/android.toolchain.cmake \
+        -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+    - name: Configure x86-64
+      run: |
+        $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake \
+        -Bbuild-x86-64 -DANDROID_ABI=x86_64 \
+        -DANDROID_PLATFORM=android-31 \
+        -DANDROID_NDK=$ANDROID_SDK_ROOT/ndk/27.0.12077973 \
+        -DCMAKE_TOOLCHAIN_FILE=$ANDROID_SDK_ROOT/ndk/27.0.12077973/build/cmake/android.toolchain.cmake \
+        -DCMAKE_BUILD_TYPE=Release -G Ninja
+
+    - name: Build arm64-v8a
+      run: |
+        $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-arm64-v8a --target package
+        tar -cf ffmpeg-arm64-v8a-Android.tar.gz build-arm64-v8a/ffmpeg/*
+
+    - name: Build x86-64
+      run: |
+        $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-x86-64 --target package
+        tar -cf ffmpeg-x86-64-Android.tar.gz build-x86-64/ffmpeg/*
+
+    - name: Create release
+      uses: softprops/action-gh-release@v2
+      if: ${{ inputs.shouldrelease }}
+      with:
+        tag_name: ${{ inputs.releasetag }}
+        prerelease: false
+        make_latest: true
+        files: |
+          ffmpeg-arm64-v8a-Android.tar.gz
+          ffmpeg-x86-64-Android.tar.gz
+
