@@ -65,14 +65,14 @@ jobs:
       run: |
         $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-arm64-v8a --target ffmpeg-build-all
         cd build-arm64-v8a/ffmpeg
-        tar -cf ../../ffmpeg-arm64-v8a-Android.tar.gz */*.a */**/*.h
+        tar -cf ../../ffmpeg-arm64-v8a-Android.tar.gz `find -L -name '*.a' -or -name '*.h'`
         cd -
 
     - name: Build x86-64
       run: |
         $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-x86-64 --target ffmpeg-build-all
         cd build-x86-64/ffmpeg
-        tar -cf ../../ffmpeg-x86-64-Android.tar.gz */*.a */**/*.h
+        tar -cf ../../ffmpeg-x86-64-Android.tar.gz `find -L -name '*.a' -or -name '*.h'`
         cd -
 
     - name: Create release
