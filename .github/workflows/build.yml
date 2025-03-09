@@ -63,12 +63,12 @@ jobs:
 
     - name: Build arm64-v8a
       run: |
-        $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-arm64-v8a --target package
+        $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-arm64-v8a --target ffmpeg-build-all
         tar -cf ffmpeg-arm64-v8a-Android.tar.gz build-arm64-v8a/ffmpeg/*
 
     - name: Build x86-64
       run: |
-        $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-x86-64 --target package
+        $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-x86-64 --target ffmpeg-build-all
         tar -cf ffmpeg-x86-64-Android.tar.gz build-x86-64/ffmpeg/*
 
     - name: Create release
