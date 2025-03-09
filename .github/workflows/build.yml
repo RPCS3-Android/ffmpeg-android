@@ -72,7 +72,7 @@ jobs:
       run: |
         $ANDROID_SDK_ROOT/cmake/3.31.5/bin/cmake --build build-x86-64 --target ffmpeg-build-all
         cd build-x86-64/ffmpeg
-        tar -cf ../../ffmpeg-x86-64-v8a-Android.tar.gz */*.a */**/*.h
+        tar -cf ../../ffmpeg-x86-64-Android.tar.gz */*.a */**/*.h
         cd -
 
     - name: Create release
